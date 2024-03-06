@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import FlightList from './FlightList';
 import Filter from './Filter';
 import Sort from './Sort';
-import Footer from './Footer'
-import AirlineSVG from './assets/logo.png'
+import Footer from './Footer';
+import AirlineSVG from './assets/logo.png';
 import './App.css';
 
 function App() {
@@ -13,33 +13,30 @@ function App() {
   const [sortBy, setSortBy] = useState('');
   const [searchSource, setSearchSource] = useState('');
   const [searchDestination, setSearchDestination] = useState('');
+  const [searchClicked, setSearchClicked] = useState(false); 
 
   useEffect(() => {
     fetchFlights();
   }, []);
 
   useEffect(() => {
-    filterFlights();
-  }, [filterBy, flights]);
+    if (searchClicked) { 
+      filterFlights();
+    }
+  }, [filterBy, flights, searchClicked]); 
 
   useEffect(() => {
     sortFlights();
   }, [sortBy, filteredFlights]);
 
-  const fetchFlights = () => 
-  {
+  const fetchFlights = () => {
     fetch('https://api.npoint.io/378e02e8e732bb1ac55b')
       .then(response => response.json())
       .then(data => {
         setFlights(data);
-        //  setFilteredFlights(data);
-        
       })
-      
       .catch(error => console.error('Error fetching data:', error));
   };
-
-  
 
   const filterFlights = () => {
     let filtered = flights;
@@ -68,33 +65,32 @@ function App() {
   };
 
   const handleSearch = () => {
-    filterFlights();
+    setSearchClicked(true); 
   };
 
   return (
     <div className="app">
-    <div className="header">
-      <div className='header-text'>
+      <div className="header">
+        <div className='header-text'>
           <h1 >Jet Set Go</h1>
-      
           <img src={AirlineSVG} alt="herkey-logo" className="logo"/>
-          </div>
-          <p>Fly Beyond Boundaries: Where Every Journey is an Adventure</p>
+        </div>
+        <p>Fly Beyond Boundaries: Where Every Journey is an Adventure</p>
       </div>
 
       <div className="search">
         <div className='filter-sort'>
-      <Filter flights={flights} onChange={handleFilterChange} />
-      <Sort onChange={handleSortChange} />
-      </div>
+          <Filter flights={flights} onChange={handleFilterChange} />
+          <Sort onChange={handleSortChange} />
+        </div>
         <label> Source : </label>
         <input className='input-field' type='text' value={searchSource} onChange={(e) => setSearchSource(e.target.value)} />
         <label> Destination : </label>
         <input className='input-field' type='text' value={searchDestination} onChange={(e) => setSearchDestination(e.target.value)} />
-        <button className='button-85' onClick={handleSearch}> Search </button>
+        <button className='button' onClick={handleSearch}> Search </button>
       </div>
-      
-      <FlightList flights={filteredFlights} />
+
+      {searchClicked && <FlightList flights={filteredFlights} />} 
       <Footer />
     </div>
   );
